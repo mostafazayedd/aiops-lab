@@ -1,59 +1,71 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# AIOps Observability System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel-based AIOps observability system that emits ML-ready telemetry with structured logs, correlation IDs, Prometheus RED metrics, and a controlled traffic generator with ground-truth anomaly injection.
 
-## About Laravel
+## Stack
+- **Laravel 12** — API + telemetry middleware
+- **SQLite** — database simulation
+- **Prometheus** — metrics scraping
+- **Grafana** — dashboards + anomaly visualization
+- **Python** — traffic generator
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## API Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| /api/normal | GET | Returns 200 OK |
+| /api/slow | GET | Simulates slow response (1-3s), ?hard=1 for 5-7s |
+| /api/error | GET | Simulates 500 error |
+| /api/random | GET | Random success/slow/error |
+| /api/db | GET | SQLite query, ?fail=1 forces QueryException |
+| /api/validate | POST | Validates email + age (18-60) |
+| /api/metrics | GET | Prometheus metrics endpoint |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Laravel API
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan serve
+```
 
-## Learning Laravel
+### Docker (Prometheus + Grafana)
+```bash
+docker-compose up -d
+```
+- Prometheus: http://localhost:9090
+- Grafana: http://localhost:3000 (admin/admin)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Traffic Generator
+```bash
+pip install requests
+python traffic_generator.py
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Log Schema
+Every request produces a structured JSON log entry in `storage/logs/aiops.log` with these fields:
+`correlation_id`, `method`, `path`, `route_name`, `status_code`, `latency_ms`, `error_category`, `severity`, `client_ip`, `user_agent`, `query`, `payload_size_bytes`, `response_size_bytes`, `build_version`, `host`, `timestamp`
 
-## Laravel Sponsors
+## Error Categories
+| Category | Trigger |
+|----------|---------|
+| VALIDATION_ERROR | Invalid email or age |
+| DATABASE_ERROR | QueryException |
+| TIMEOUT_ERROR | Latency > 4000ms (even if HTTP 200) |
+| SYSTEM_ERROR | Unhandled 500 errors |
+| UNKNOWN | Everything else |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Anomaly Design
+The traffic generator injects a 2-minute error spike anomaly:
+- Base load: 5% error rate
+- Anomaly window: 35-40% error rate
+- Ground truth saved to `ground_truth.json`
 
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Deliverables
+- `storage/logs/aiops.log` — 1600 structured log entries
+- `logs.json` — exported logs
+- `ground_truth.json` — anomaly window timestamps
+- `docker-compose.yml` + `prometheus.yml` — monitoring stack
+- `traffic_generator.py` — controlled traffic generator
