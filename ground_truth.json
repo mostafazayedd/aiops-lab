@@ -1,0 +1,6 @@
+{
+  "anomaly_start_iso": "2026-03-09T22:52:18.680393+00:00",
+  "anomaly_end_iso": "2026-03-09T23:06:39.202837+00:00",
+  "anomaly_type": "error_spike",
+  "expected_behavior": "Error rate spikes from ~5% to ~35-40% during anomaly window due to increased /api/error traffic"
+}
