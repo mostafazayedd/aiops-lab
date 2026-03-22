@@ -1,6 +1,8 @@
 <?php
 
-return [
+return ['prometheus' => [
+    'url' => env('PROMETHEUS_URL', 'http://localhost:9090'),
+],
 
     /*
     |--------------------------------------------------------------------------
