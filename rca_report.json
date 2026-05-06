@@ -1,0 +1,97 @@
+{
+  "incident_id": "INC-20260309-001",
+  "anomaly_window": {
+    "start": "2026-04-06T12:40:14.346224+00:00",
+    "end": "2026-04-06T12:44:55.898498+00:00",
+    "type": "error_spike"
+  },
+  "signal_analysis": {
+    "normal_window": {
+      "total": 900,
+      "error_rate": 7.0,
+      "avg_latency_ms": 351.55,
+      "p95_latency_ms": 2430.2,
+      "endpoint_counts": {
+        "api/normal": 634,
+        "api/db": 27,
+        "api/validate": 19,
+        "api/slow": 139,
+        "api/error": 52,
+        "api/random": 23,
+        "api/db-fail": 6
+      },
+      "endpoint_errors": {
+        "api/validate": 5,
+        "api/error": 52,
+        "api/db-fail": 6
+      },
+      "error_categories": {
+        "VALIDATION_ERROR": 5,
+        "SYSTEM_ERROR": 52,
+        "DATABASE_ERROR": 6
+      }
+    },
+    "anomaly_window": {
+      "total": 700,
+      "error_rate": 21.14,
+      "avg_latency_ms": 262.05,
+      "p95_latency_ms": 2184.5,
+      "endpoint_counts": {
+        "api/normal": 425,
+        "api/error": 137,
+        "api/validate": 12,
+        "api/db": 21,
+        "api/random": 23,
+        "api/slow": 78,
+        "api/db-fail": 4
+      },
+      "endpoint_errors": {
+        "api/error": 137,
+        "api/validate": 7,
+        "api/db-fail": 4
+      },
+      "error_categories": {
+        "SYSTEM_ERROR": 137,
+        "VALIDATION_ERROR": 7,
+        "DATABASE_ERROR": 4
+      }
+    },
+    "error_rate_delta_pct": 14.14,
+    "latency_delta_ms": -89.5
+  },
+  "root_cause_endpoint": "api/error",
+  "primary_signal": "error_rate",
+  "supporting_evidence": {
+    "top_error_category": "SYSTEM_ERROR",
+    "top_category_count": 137,
+    "endpoint_error_count": 137,
+    "error_rate_normal_pct": 7.0,
+    "error_rate_anomaly_pct": 21.14,
+    "avg_latency_normal_ms": 351.55,
+    "avg_latency_anomaly_ms": 262.05
+  },
+  "confidence_score": 100,
+  "recommended_action": "Investigate api/error \u2014 it generated 137 errors during the anomaly window. Primary signal was error_rate spike. Top error category was SYSTEM_ERROR. Consider adding circuit breaker or rate limiting to this endpoint.",
+  "incident_timeline": [
+    {
+      "phase": "Normal State",
+      "description": "System operating normally. Error rate 7.0%, avg latency 351.55ms.",
+      "timestamp": "2026-03-09T21:00:00+00:00"
+    },
+    {
+      "phase": "Anomaly Start",
+      "description": "Error rate began spiking. api/error started generating excessive errors.",
+      "timestamp": "2026-04-06T12:40:14.346224+00:00"
+    },
+    {
+      "phase": "Peak Incident",
+      "description": "Error rate reached 21.14%. SYSTEM_ERROR was dominant error category.",
+      "timestamp": "2026-04-06T12:40:14.346224+00:00"
+    },
+    {
+      "phase": "Recovery",
+      "description": "Anomaly window ended. Traffic generator returned to base load distribution.",
+      "timestamp": "2026-04-06T12:44:55.898498+00:00"
+    }
+  ]
+}
