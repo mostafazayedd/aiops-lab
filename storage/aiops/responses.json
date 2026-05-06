@@ -1,0 +1,44 @@
+[
+    {
+        "incident_id": "INC-20260506233207-003",
+        "incident_type": "TRAFFIC_SURGE",
+        "action_taken": "scale_service",
+        "timestamp": "2026-05-06T23:32:07+00:00",
+        "result": "SUCCESS",
+        "notes": "Scaled from 1 to 3 instances. Load distributed.",
+        "escalated": false,
+        "policy": {
+            "action": "scale_service",
+            "threshold": 100,
+            "severity": "MEDIUM"
+        }
+    },
+    {
+        "incident_id": "INC-20260506233207-004",
+        "incident_type": "DATABASE_ERROR",
+        "action_taken": "failover_database \u2192 CRITICAL_ALERT",
+        "timestamp": "2026-05-06T23:32:07+00:00",
+        "result": "ESCALATED",
+        "notes": "Automated action failed or severity is CRITICAL. Incident escalated to human operator. Failover attempted but replica not available. Escalating.",
+        "escalated": true,
+        "policy": {
+            "action": "failover_database",
+            "threshold": 5,
+            "severity": "CRITICAL"
+        }
+    },
+    {
+        "incident_id": "INC-20260506233207-005",
+        "incident_type": "VALIDATION_ERROR",
+        "action_taken": "throttle_traffic",
+        "timestamp": "2026-05-06T23:32:07+00:00",
+        "result": "SUCCESS",
+        "notes": "Rate limiting applied. Max 100 req\/min per client.",
+        "escalated": false,
+        "policy": {
+            "action": "throttle_traffic",
+            "threshold": 10,
+            "severity": "LOW"
+        }
+    }
+]
